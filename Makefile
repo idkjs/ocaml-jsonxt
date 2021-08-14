@@ -6,9 +6,12 @@ default:
 
 check:
 	dune build @check
-	
+
 examples:
 	dune build @examples
+
+tests:
+	dune runtest
 
 install:
 	dune install $(INSTALL_ARGS)

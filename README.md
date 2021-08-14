@@ -42,7 +42,7 @@ let () =
 ### Reading a file and printing to stdout
 
 ```
-let () = 
+let () =
   let json = Jsonxt.Basic.of_file "test.json" in
   Jsonxt.Basic.to_channel_hum stdout json;;
 ```
@@ -134,7 +134,67 @@ See the examples/ppx\_yojson\_conv directory for a working example including the
 An example of how to use the parser monad and writer with async.  Note
 that async and core libraries need to be installed.
 
+### Reason Syntax
+
+```reason
+open Core;
+open Async;
+
+module Json_async = {
+  module Json_of_async =
+    Jsonxt.Basic_monad.Make({
+      type t('a) = Deferred.t('a);
+
+      let return = Deferred.return;
+      let (>>=) = Deferred.Monad_infix.(>>=);
+    });
+
+  let reader = (inc, buf, size) =>
+    Reader.read(inc, ~len=size, buf)
+    >>= (
+      fun
+      | `Eof => return(0)
+      | `Ok(len) => return(len)
+    );
+
+  let read = inc => {
+    let reader = reader(inc);
+    Json_of_async.read_json(~reader, ());
+  };
+
+  let write = outc => {
+    let writer = buf => Writer.write(outc, buf) |> return;
+    Json_of_async.write_json(~writer);
+  };
+};
+
+let run = () =>
+  Reader.open_file("./asyncdata.json")
+  >>= (
+    inc =>
+      Json_async.read(inc)
+      >>= (
+        fun
+        | Error(err) => raise(Failure(err))
+        | Ok(json) =>
+          Json_async.write(force(Writer.stdout), json)
+          >>= (
+            () => {
+              printf("\n");
+              shutdown(0) |> return;
+            }
+          )
+      )
+  );
+
+let () = {
+  ignore(run());
+  never_returns(Scheduler.go());
+};
 ```
+
+### OCaml Syntax
+```ocaml
 open Core
 open Async
 
@@ -182,7 +242,7 @@ See the examples/async directory for a working example including the dune config
 
 ## Performance
 Performance in general is similar to Yojson for reading depending to some extent
-on the input.  
+on the input.
 
 Writing wise, jsonxt is similar or slightly faster depending on the type of output.
 Jsonxt optimises integer values in floats and uses integer conversion which is 4-5
