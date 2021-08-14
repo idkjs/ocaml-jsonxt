@@ -4,6 +4,12 @@ INSTALL_ARGS := $(if $(PREFIX),--prefix $(PREFIX),)
 default:
 	dune build @install
 
+check:
+	dune build @check
+	
+examples:
+	dune build @examples
+
 install:
 	dune install $(INSTALL_ARGS)
 
