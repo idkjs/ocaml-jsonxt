@@ -10,6 +10,9 @@ check:
 examples:
 	dune build @examples
 
+format:  ## Reformat with Ocamlformat
+	dune build @fmt --auto-promote
+	
 tests:
 	dune runtest
 

@@ -71,7 +71,32 @@ let () =
 
 ### Reading and writing a file using the monad functions
 
+```reason
+module IO = {
+  type t('a) = 'a;
+  let return = v => v;
+  let (>>=) = (v, f) => f(v);
+};
+
+module JsonIO = Jsonxt.Basic_monad.Make(IO);
+
+open IO;
+let _ = {
+  let ic = open_in("test.json");
+  let reader = (buf, len) => return(input(ic, buf, 0, len));
+  let writer = s => return(output_string(stdout, s));
+  JsonIO.read_json(~reader, ())
+  >>= (
+    fun
+    | Error(err) => {
+        print_endline("ERROR: " ++ err);
+        return();
+      }
+    | Ok(json) => JsonIO.write_json_hum(~writer, json)
+  );
+};
 ```
+```ocaml
 module IO = struct
   type 'a t = 'a
   let return v = v
@@ -96,13 +121,46 @@ let _ =
 To use Jsonxt's Yojson compatibility module create a `yojson.ml` file in
 the source directory of the project with the following contents:
 
-```
+```ocaml
 include Jsonxt.Yojson
 ```
 
 The following is an example using ppx\_yojson\_conv:
+```reason
+module Item = {
+  [@deriving yojson]
+  type t = {
+    str: string,
+    cost: float,
+  };
+};
+
+module Stock = {
+  [@deriving yojson]
+  type t = {
+    desc: string,
+    inventory: int,
+    backorder: option(int),
+    items: list(Item.t),
+  };
+};
+
+let () = {
+  let item1 = {Item.str: "Store Baked Beans", cost: 1.22};
+  let item2 = {Item.str: "Branded Baked Beans", cost: 1.47};
+  let stock = {
+    Stock.desc: "Beans",
+    inventory: 2,
+    backorder: Some(3),
+    items: [item1, item2],
+  };
+  let json = Stock.yojson_of_t(stock);
+  print_endline(Yojson.Safe.show(json));
+  print_endline(Yojson.Safe.pretty_to_string(json));
+};
 
 ```
+```ocaml
 module Item = struct
   type t = {
     str : string
@@ -268,3 +326,16 @@ dune build @runtest
 
 Performance tests can be found in tests/perf, see the README.md in that
 directory for more details.
+
+## Building with opam/dune
+
+```sh
+opam switch create . --deps-only --locked
+```
+## Building with esy
+
+```sh
+npm install -g esy@next
+esy install
+esy dune build @all -w
+```

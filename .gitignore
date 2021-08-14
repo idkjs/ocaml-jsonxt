@@ -25,3 +25,5 @@ setup.log
 *.docdir
 *.install
 pkg/META
+_esy
+.vscode/settings.json
