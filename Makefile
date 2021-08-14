@@ -12,7 +12,7 @@ examples:
 
 format:  ## Reformat with Ocamlformat
 	dune build @fmt --auto-promote
-	
+
 tests:
 	dune runtest
 
@@ -30,4 +30,4 @@ doc:
 clean:
 	dune clean
 
-.PHONY: default install uninstall reinstall clean doc
+.PHONY: default install uninstall reinstall clean doc examples format
