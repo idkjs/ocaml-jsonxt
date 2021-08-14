@@ -1,0 +1,35 @@
+module type Intf = {
+  type json;
+
+  let json_to_string: json => result(string, string);
+  let json_to_string_exn: json => string;
+  let to_string: json => string;
+  let json_to_string_hum: json => result(string, string);
+  let json_to_string_hum_exn: json => string;
+  let to_string_hum: json => string;
+  let json_to_file: (string, json) => result(unit, string);
+  let json_to_file_hum: (string, json) => result(unit, string);
+  let json_to_file_exn: (string, json) => unit;
+  let json_to_file_hum_exn: (string, json) => unit;
+  let json_to_channel: (out_channel, json) => result(unit, string);
+  let json_to_channel_exn: (out_channel, json) => unit;
+  let json_to_channel_hum: (out_channel, json) => result(unit, string);
+  let json_to_channel_hum_exn: (out_channel, json) => unit;
+  let to_file: (string, json) => unit;
+  let to_file_hum: (string, json) => unit;
+  let to_channel: (out_channel, json) => unit;
+  let to_channel_hum: (out_channel, json) => unit;
+  let json_to_buffer: (Buffer.t, json) => result(unit, string);
+  let json_to_buffer_exn: (Buffer.t, json) => unit;
+  let json_to_buffer_hum: (Buffer.t, json) => result(unit, string);
+  let json_to_buffer_hum_exn: (Buffer.t, json) => unit;
+  let to_buffer: (Buffer.t, json) => unit;
+  let to_buffer_hum: (Buffer.t, json) => unit;
+  let pretty_print: (Format.formatter, json) => unit;
+  let pretty_print_to_string: json => string;
+  let pretty_print_to_channel: (out_channel, json) => unit;
+  let stream_to_string: Stream.t(json) => string;
+  let stream_to_channel: (out_channel, Stream.t(json)) => unit;
+  let stream_to_file: (string, Stream.t(json)) => unit;
+  let stream_to_buffer: (Buffer.t, Stream.t(json)) => unit;
+};
